@@ -23,7 +23,7 @@ function UIContainer() {
         <Title>UI Container</Title>
         <MoveBox />
     </Container>
-  )
-};
+  );
+}
 
 export default UIContainer;
