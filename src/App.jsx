@@ -1,5 +1,4 @@
 import UIContainer from './UIContainer';
-import './App.css'
 
 function App() {
 
