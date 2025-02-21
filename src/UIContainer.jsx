@@ -8,7 +8,7 @@ const Title = styled.h1`
     margin-bottom: 1rem;
   `;
     
-    const Container = styled.div`
+  const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
