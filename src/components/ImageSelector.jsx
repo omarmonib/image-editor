@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-import { useCallback, useRef } from 'react';
-import styled from 'styled-components';
+import PropTypes from "prop-types";
+import { useCallback, useRef } from "react";
+import styled from "styled-components";
 
 const Button = styled.button`
   padding: 10px 20px;
@@ -30,34 +30,21 @@ const ImageSelector = ({ onImageSelect }) => {
 
   const handleFileChange = useCallback((event) => {
     const file = event.target.files?.[0];
-    
-    if (!file) {
-      return;
-    }
 
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file");
       return;
     }
 
     onImageSelect(file);
-    
-    event.target.value = '';
+    event.target.value = "";
   }, [onImageSelect]);
 
   return (
     <>
-      <Button onClick={handleClick}>
-        Select Image
-      </Button>
-
-      <HiddenInput
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-      />
+      <Button onClick={handleClick}>Select Image</Button>
+      <HiddenInput ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} />
     </>
   );
 };
@@ -66,4 +53,4 @@ ImageSelector.propTypes = {
   onImageSelect: PropTypes.func.isRequired,
 };
 
-export default ImageSelector; 
+export default ImageSelector;
