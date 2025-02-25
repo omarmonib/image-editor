@@ -8,9 +8,8 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   height: 50vh;
-  width: 100%;
+  width: 50%;
   background-color: bisque;
-  overflow: hidden;
   position: relative;
 `;
 
@@ -24,8 +23,10 @@ const Box = styled.div`
   cursor: grab;
   transition: transform 0.1s ease-out;
   transform: ${({ x, y, scale }) => `translate(${x}px, ${y}px) scale(${scale})`};
+
   user-select: none;
   position: absolute;
+  padding: 0;
 
   &:active {
     cursor: grabbing;
@@ -52,27 +53,13 @@ const MoveBox = () => {
       let { x, y, scale } = position;
   
       switch (event.key) {
-        case "ArrowUp":
-          y -= moveStep;
-          break;
-        case "ArrowDown":
-          y += moveStep;
-          break;
-        case "ArrowLeft":
-          x -= moveStep;
-          break;
-        case "ArrowRight":
-          x += moveStep;
-          break;
-        case "+":
-        case "=":
-          scale += zoomStep;
-          break;
-        case "-":
-          scale = Math.max(0.5, scale - zoomStep);
-          break;
-        default:
-          return;
+        case "ArrowUp": y -= moveStep; break;
+        case "ArrowDown": y += moveStep; break;
+        case "ArrowLeft": x -= moveStep; break;
+        case "ArrowRight": x += moveStep; break;
+        case "+": case "=": scale += zoomStep; break;
+        case "-": scale = Math.max(0.5, scale - zoomStep); break;
+        default: return;
       }
     
       setPosition(() =>
@@ -88,20 +75,26 @@ const MoveBox = () => {
       isDragging.current = true;
 
       const { clientX, clientY } = event;
-      offset.current = { x: (clientX - position.x) / position.scale, y: (clientY - position.y) / position.scale };
+      offset.current = { 
+        x: (clientX - position.x) / position.scale, 
+        y: (clientY - position.y) / position.scale 
+      };
     },
     [position]
   );
 
-  const handleMouseMove = useCallback(
-    (event) => {
+  const handleMouseMove = useCallback((event) => {
       if (!isDragging.current) return;
 
       const { clientX, clientY } = event;
 
       setPosition((prev) =>
         keepImageInside(
-          { x: clientX - offset.current.x, y: clientY - offset.current.y, scale: prev.scale },
+          { 
+            x: (clientX - offset.current.x * prev.scale), 
+            y: (clientY - offset.current.y * prev.scale), 
+            scale: prev.scale 
+          },
           containerRef.current,
           boxRef.current
         )
@@ -137,9 +130,13 @@ const MoveBox = () => {
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [handleKeyboard, handleMouseMove, handleMouseUp]);
-
-  // Revoke URL when component unmounts
+  
   useEffect(() => {
+    if (containerRef.current && boxRef.current) {
+      setPosition((prev) =>
+        keepImageInside(prev, containerRef.current, boxRef.current)
+      );
+    }
     return () => selectedImage && URL.revokeObjectURL(selectedImage);
   }, [selectedImage]);
 
@@ -153,7 +150,7 @@ const MoveBox = () => {
           x={position.x}
           y={position.y}
           scale={position.scale}
-          imageUrl={selectedImage}
+          $imageUrl={selectedImage}
           onMouseDown={handleBoxMouseDown}
         />
       </Container>
