@@ -19,7 +19,9 @@ const Box = styled.div`
   background: ${({ $imageUrl }) => ($imageUrl ? `url(${$imageUrl}) center/cover` : "grey")};
   cursor: grab;
   transition: transform 0.1s ease-out;
-  transform: ${({ x, y, scale }) => `translate(${x}px, ${y}px) scale(${scale})`};
+  transform: ${({ x, y, scale, rotation }) =>
+  `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotation}deg)`};
+  transform-origin: center;
   position: absolute;
   user-select: none;
 
@@ -30,10 +32,11 @@ const Box = styled.div`
 const moveStep = 20;
 const zoomStep = 0.1;
 const minZoom = 0.5;
+const rotationStep = 10;
 
 // State and controls for moving and scaling the box
 const MoveBox = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0, scale: 1 });
+  const [position, setPosition] = useState({ x: 0, y: 0, scale: 1, rotation: 0 });
   const [selectedImage, setSelectedImage] = useState(null);
 
   // References to track dragging state and mouse offset positions
@@ -46,23 +49,25 @@ const MoveBox = () => {
     setPosition(keepImageInside(newPosition, containerRef.current, boxRef.current));
   };
 
-  const handleKeyboard = useCallback(({ key }) => {
-    let { x, y, scale } = position;
-
-    const movement = {
-      ArrowUp: () => (y -= moveStep),
-      ArrowDown: () => (y += moveStep),
-      ArrowLeft: () => (x -= moveStep),
-      ArrowRight: () => (x += moveStep),
-      "+": () => (scale += zoomStep),
-      "=": () => (scale += zoomStep),
-      "-": () => (scale = Math.max(minZoom, scale - zoomStep)),
-    };
-
-    if (movement[key]) {
-      movement[key]();
-      updatePosition({ x, y, scale });
+  const handleKeyboard = useCallback((event) => {
+    event.preventDefault();
+    let { x, y, scale, rotation } = position;
+  
+    switch (event.key) {
+      case "ArrowUp": y -= moveStep; break;
+      case "ArrowDown": y += moveStep; break;
+      case "ArrowLeft": x -= moveStep; break;
+      case "ArrowRight": x += moveStep; break;
+      case "+": case "=": scale += zoomStep; break;
+      case "-": scale = Math.max(minZoom, scale - zoomStep); break;
+      case "q": rotation -= rotationStep; break;
+      case "e": rotation += rotationStep; break;
+      default: return;
     }
+  
+    setPosition(() =>
+      keepImageInside({ x, y, scale, rotation }, containerRef.current, boxRef.current)
+    );
   }, [position]);
 
   // Event handlers for mouse events
@@ -127,6 +132,7 @@ const MoveBox = () => {
           x={position.x}
           y={position.y}
           scale={position.scale}
+          $rotation={position.rotation}
           $imageUrl={selectedImage}
           onMouseDown={handleBoxMouseDown}
         />

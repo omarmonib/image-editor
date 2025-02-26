@@ -4,16 +4,13 @@ export const keepImageInside = (position, container, box) => {
     let { x, y, scale } = position;
     const containerRect = container.getBoundingClientRect(); 
 
-    // Calculate the maximum scale factor based on the container dimensions
     const maxScale = Math.min(
         containerRect.width / box.offsetWidth, 
         containerRect.height / box.offsetHeight
     );
 
-    // Ensure the scale factor does not exceed the maximum
     scale = Math.min(maxScale, scale);
 
-    // Calculate the scaled dimensions of the box
     const scaledBoxWidth = box.offsetWidth * scale; 
     const scaledBoxHeight = box.offsetHeight * scale;
 
